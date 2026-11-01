@@ -54,7 +54,7 @@
     \noteleft{start}{reset};
     \noteright{start}{0000};
 
-    \state[below=of start]{idle}{};
+    \state[below=of start]{idle}{CoffeeOut, TeaOut $\leftarrow$ 0};
 
     \noteleft{idle}{idle};
     \noteright{idle}{0001};
@@ -69,7 +69,7 @@
 
     \decis[below=of reset]{p20}{P20};
 
-    \draw[arrow] (reset) -- node[above] {1} ++(\xdist, 0) -- ++(0, 2*\ydist) -- (start);
+    \draw[arrow] (reset) -- node[above,pos=0.4] {1} ++(\xdist, 0) -- ++(0, 2*\ydist) -- (start);
     \draw[short] (reset) -- node[right] {0} (p20);
 
     \decis[below right=of p20]{p10}{P10};
@@ -173,7 +173,7 @@
     \draw[arrow] (resetcoffee) -- node[above,pos=0.15] {1} ++(2.125*\xdist, 0) -- ++(0, 6.75*\ydist) -- ++(-1.5*\xdist, 0) -- ++(0, 5.25*\ydist) -- ++(-2.875*\xdist, 0);
 
     \decis[right=of nextcoffee]{pchange}{Pchange};
-    \state[right=1.5*\xdist of pchange]{incoffee}{CoffeeOut, TeaOut $\leftarrow$ 0 \\ Change20, Change10, Change5 $\leftarrow$ 00};
+    \state[right=1.5*\xdist of pchange]{incoffee}{CoffeeOut, TeaOut $\leftarrow$ 0 \\ Change5, Change10, Change20 $\leftarrow$ 00};
 
     \noteleft{incoffee}{startchange};
     \noteright{incoffee}{1000};
