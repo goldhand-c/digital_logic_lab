@@ -1,0 +1,264 @@
+\documentclass[12pt,margin=15mm]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,shapes.misc, arrows,positioning}
+\usepackage{newtxtext,newtxmath}
+
+
+\tikzstyle{process} = [
+    rectangle, inner ysep=5pt,
+    minimum width=3cm,
+    minimum height=1.25cm,
+    align=center,
+    inner sep=10pt,
+    draw=black,
+    % fill=orange!30
+]
+\tikzstyle{decision} = [
+    draw, chamfered rectangle,
+    chamfered rectangle xsep=2cm,
+    minimum width=3cm,
+    minimum height=1cm,
+    align=center,
+    draw=black,
+    % fill=green!30
+]
+\tikzstyle{arrow} = [
+    line width=0.5pt,->,>=stealth,shorten >= .25pt,shorten <= -.25pt, line join=miter
+]
+\tikzstyle{short} = [
+    line width=0.5pt,shorten >= -.25pt,shorten <= -.25pt
+    % arrow
+]
+\newcommand{\ydist}{3cm}
+\newcommand{\xdist}{6cm}
+\tikzset{
+    node distance=\ydist and \xdist, % y and x
+    on grid
+}
+
+\begin{document}
+
+% state: [options] name, label
+\newcommand{\state}[3][]{\node (#2) [process, #1] {#3}}
+\newcommand{\decis}[3][]{\node (#2) [decision, #1] {\null\\[-0.2em]\raisebox{-0.7ex}{#3}\\[-0.2em]\null}}
+\newcommand{\noteleft}[2]{\node[anchor=south west, font=\footnotesize, text depth=0ex, text height=1.5ex, xshift=-3pt] at (#1.north west) {#2}}
+\newcommand{\noteright}[2]{\node[anchor=south east, font=\footnotesize, text depth=0ex, text height=1.5ex, xshift=3pt] at (#1.north east) {#2}}
+
+\begin{tikzpicture}
+
+    % \draw[xstep=\xdist, ystep=\ydist, help lines] (-2*\xdist, \ydist) grid (10*\xdist, -15*\ydist);
+    \draw[thick,dashdotted] (-1.5*\xdist, \ydist) rectangle (9.75*\xdist, -14.75*\ydist);
+
+    \state{start}{Balance $\leftarrow$ 00\,0000 \\ Change5, Change10, Change20 $\leftarrow$ 00 \\ CoffeeOut, TeaOut $\leftarrow$ 0};
+
+    \noteleft{start}{reset};
+    \noteright{start}{0000};
+
+    \state[below=of start]{idle}{};
+
+    \noteleft{idle}{idle};
+    \noteright{idle}{0001};
+
+    \draw[arrow] (start) -- (idle);
+    \node (ridle) [right=of idle,inner sep=0pt,xshift=2*\xdist] {};
+    \node (lidle) [left=of idle,inner sep=0pt,xshift=0*\xdist] {};
+
+    \decis[below=of idle]{reset}{reset};
+
+    \draw[arrow] (idle) -- (reset);
+
+    \decis[below=of reset]{p20}{P20};
+
+    \draw[arrow] (reset) -- node[above] {1} ++(\xdist, 0) -- ++(0, 2*\ydist) -- (start);
+    \draw[short] (reset) -- node[right] {0} (p20);
+
+    \decis[below right=of p20]{p10}{P10};
+
+    \draw[short] (p20) -| node[pos=0.2,above] {0} (p10);
+
+    \decis[below right=of p10]{p5}{P5};
+
+    \draw[short] (p10) -| node[pos=0.2,above] {0} (p5);
+
+    % \draw[arrow] (p5) -- node[above] {0} (p5 -| ridle) -- (ridle.center) -- (idle);
+
+    \decis[below=of p20]{cmp20}{Balance $\leq$ 30};
+    \decis[below=of p10]{cmp10}{Balance $\leq$ 40};
+    \decis[below=of p5]{cmp5}{Balance $\leq$ 45};
+
+    \draw[short] (p20) -- node[right] {1} (cmp20);
+    \draw[short] (p10) -- node[right] {1} (cmp10);
+    \draw[short] (p5) -- node[right] {1} (cmp5);
+
+    \state[below=3*\ydist of cmp20]{ip20}{Balance $\leftarrow$ Balance $+$ 20};
+    \state[below=2*\ydist of cmp10]{ip10}{Balance $\leftarrow$ Balance $+$ 10};
+    \state[below=of cmp5]{ip5}{Balance $\leftarrow$ Balance $+$ 5};
+
+    \noteleft{ip20}{balanceplus20};
+    \noteright{ip20}{0010};
+    \noteleft{ip10}{balanceplus10};
+    \noteright{ip10}{0011};
+    \noteleft{ip5}{balanceplus5};
+    \noteright{ip5}{0100};
+
+    \draw[arrow] (cmp20) -- node[right,pos=0.105] {1} (ip20);
+    \draw[arrow] (cmp10) -- node[right,pos=0.2] {1} (ip10);
+    \draw[arrow] (cmp5) -- node[right] {1} (ip5);
+
+    \draw[arrow] (cmp20) -- node[above, pos=0.2] {0} (cmp20 -| lidle) -- (lidle.center) -- (idle);
+    \draw[arrow] (cmp10) -- node[above, pos=0.1] {0} (cmp10 -| lidle) -- (cmp20 -| lidle);
+    \draw[arrow] (cmp5) -- node[above, pos=0.08] {0} (cmp5 -| lidle) -- (cmp10 -| lidle);
+
+    \node (bip5) [below=2*\ydist of ip5,inner sep=0pt] {};
+    \draw[arrow] (ip5) -- (bip5.center) -- (bip5 -| lidle) -- (cmp5 -| lidle);
+    \draw[arrow] (ip10) -- (ip10 |- bip5);
+    \draw[arrow] (ip20) -- (ip20 |- bip5);
+
+    \decis[below right=of p5,xshift=0.25*\xdist]{pcoffee}{Pcoffee};
+
+    \draw[short] (p5) -| node[above,pos=0.2] {0} (pcoffee);
+
+    \decis[below=of pcoffee]{cmpcoffee}{Balance $\geq$ 25};
+
+    \draw[short] (pcoffee) -- node[right] {1} (cmpcoffee);
+
+    \decis[below right=of pcoffee,xshift=0.25*\xdist]{ptea}{Ptea};
+
+    \draw[short] (pcoffee) -| node[above,pos=0.2] {0} (ptea);
+
+    \decis[below=of ptea]{cmptea}{Balance $\geq$ 20};
+
+    \draw[short] (ptea) -- node[right] {1} (cmptea);
+
+    \draw[arrow] (cmpcoffee.west) -- node[above] {0} ++(-0.25*\xdist, 0) -- ++(0, -\ydist);
+    \draw[arrow] (cmptea.west) -- node[above] {0} ++(-0.25*\xdist, 0) -- ++(0, -\ydist);
+
+    \decis[below=of cmpcoffee]{outcoffee}{CoffeeOut $+$ TeaOut};
+    \decis[below=of cmptea]{outtea}{CoffeeOut $+$ TeaOut};
+
+    \draw[short] (cmpcoffee) -- node[right] {1} (outcoffee);
+    \draw[short] (cmptea) -- node[right] {1} (outtea);
+
+    \draw[arrow] (outcoffee) -- node[above,pos=0.1] {1} ++(-0.8*\xdist, 0) -- ++(0, -\ydist);
+    \draw[arrow] (outtea) -- node[above,pos=0.015] {1} (outtea -| bip5);
+
+    % ---------------------------------------------------------------------
+
+    \state[below=2*\ydist of outcoffee]{updatecoffee}{Balance $\leftarrow$ Balance $-$ 25 \\ CoffeeOut $\leftarrow$ 1};
+    \state[below=1*\ydist of outtea]{updatetea}{Balance $\leftarrow$ Balance $-$ 20 \\ TeaOut $\leftarrow$ 1};
+
+    \noteleft{updatecoffee}{paycoffee};
+    \noteright{updatecoffee}{0101};
+    \noteleft{updatetea}{paytea};
+    \noteright{updatetea}{0110};
+
+    \draw[arrow] (outcoffee) -- node[right,pos=0.2] {0} (updatecoffee);
+    \draw[arrow] (outtea) -- node[right] {0} (updatetea);
+
+    \state[below=of updatecoffee]{holdcoffee}{};
+
+    \noteleft{holdcoffee}{hold};
+    \noteright{holdcoffee}{0111};
+
+    \draw[arrow] (updatecoffee) -- (holdcoffee);
+    \draw[arrow] (updatetea) |- (holdcoffee);
+
+    \decis[below=of holdcoffee]{resetcoffee}{reset};
+
+    \draw[short] (holdcoffee) -- (resetcoffee);
+
+    \decis[below=of resetcoffee]{nextcoffee}{Pchange $+$ Pnext};
+
+    \draw[short] (resetcoffee) -- node[right] {0} (nextcoffee);
+    \draw[arrow] (resetcoffee) -- node[above,pos=0.15] {1} ++(2.125*\xdist, 0) -- ++(0, 6.75*\ydist) -- ++(-1.5*\xdist, 0) -- ++(0, 5.25*\ydist) -- ++(-2.875*\xdist, 0);
+
+    \decis[right=of nextcoffee]{pchange}{Pchange};
+    \state[right=1.5*\xdist of pchange]{incoffee}{CoffeeOut, TeaOut $\leftarrow$ 0 \\ Change20, Change10, Change5 $\leftarrow$ 00};
+
+    \noteleft{incoffee}{startchange};
+    \noteright{incoffee}{1000};
+
+    \draw[short] (ptea) -- node[above] {0} ++(0.5*\xdist, 0) -- ++(0, -4.5*\ydist) -- ++(-0.75*\xdist, 0) -- (pchange);
+
+    \draw[arrow] (nextcoffee) -- node[above] {0} ++(-\xdist, 0) -- ++(0, 2*\ydist) -- (holdcoffee);
+    \draw[arrow] (nextcoffee) -- node[above] {1} (pchange);
+
+    \draw[arrow] (pchange) --  node[above] {1} (incoffee);
+
+    \draw[arrow] (pchange) -- node[right] {0} ++(0,-\ydist) -- ++(-5.25*\xdist,0) -- (lidle |- bip5);
+
+    % ---------------------------------------------------------------------
+
+    \decis[right=5.25*\xdist of idle,yshift=-1.25*\ydist]{change20}{Balance $\geq$ 20};
+
+    \draw[short] (incoffee) -- ++(0,8.5*\ydist) -- ++(-\xdist,0) -- ++(0,2.25*\ydist) -- (change20);
+
+    \state[right=1.2*\xdist of change20]{ichange20}{Change20 $\leftarrow$ Change20 $+$ 1 \\ Balance $\leftarrow$ Balance $-$ 20};
+
+    \noteleft{ichange20}{change20++};
+    \noteright{ichange20}{1001};
+
+    \state[right=0.5*\xdist of change20,yshift=0.75*\ydist]{holdafterchange20}{};
+    \noteleft{holdafterchange20}{hold};
+    \noteright{holdafterchange20}{1100};
+
+    \draw[arrow] (change20) -- node[above] {1} (ichange20);
+    \draw[arrow] (ichange20) |- (holdafterchange20.east) (holdafterchange20.west) -| (change20);
+
+    \decis[below right=of change20,yshift=-0.5*\ydist]{change10}{Balance $\geq$ 10};
+
+    \draw[arrow] (change20) |- node[right,pos=0.2] {0} (change10);
+
+    \state[right=1.2*\xdist of change10]{ichange10}{Change10 $\leftarrow$ Change10 $+$ 1 \\ Balance $\leftarrow$ Balance $-$ 10};
+
+    \noteleft{ichange10}{change10++};
+    \noteright{ichange10}{1010};
+
+    \state[right=0.5*\xdist of change10,yshift=0.75*\ydist]{holdafterchange10}{};
+    \noteleft{holdafterchange10}{hold};
+    \noteright{holdafterchange10}{1101};
+
+    \draw[arrow] (change10) -- node[above] {1} (ichange10);
+    \draw[arrow] (ichange10) |- (holdafterchange10.east) (holdafterchange10.west) -| (change10);
+
+    \decis[below right=of change10,yshift=-0.5*\ydist]{change5}{Balance $\geq$ 5};
+
+    \draw[arrow] (change10) |- node[right,pos=0.2] {0} (change5);
+
+    \state[right=1.2*\xdist of change5]{ichange5}{Change5 $\leftarrow$ Change5 $+$ 1 \\ Balance $\leftarrow$ Balance $-$ 5};
+
+    \noteleft{ichange5}{change5++};
+    \noteright{ichange5}{1011};
+
+    \state[right=0.5*\xdist of change5,yshift=0.75*\ydist]{holdafterchange5}{};
+    \noteleft{holdafterchange5}{hold};
+    \noteright{holdafterchange5}{1110};
+
+    \draw[arrow] (change5) -- node[above] {1} (ichange5);
+    \draw[arrow] (ichange5) |- (holdafterchange5.east) (holdafterchange5.west) -| (change5);
+
+    \draw[arrow] (change5) -- node[right] {0} ++(0, -\ydist) -- ++(2*\xdist, 0) -- ++(0, 5.25*\ydist) -- (idle);
+
+    % \state[below=of change5]{holdchange}{};
+
+    % \draw[arrow] (change5) -- node[right] {0} (holdchange);
+
+    % \decis[below=of holdchange]{resetchange}{reset};
+
+    % \draw[arrow] (holdchange) -- (resetchange);
+    % \draw[arrow] (resetchange) -- node[above,pos=0.2] {1} ++(-1.875*\xdist, 0);
+
+    % \decis[below=of resetchange]{waitchange}{Pchange};
+
+    % \draw[arrow] (resetchange) -- node[right] {0} (waitchange);
+    % \draw[arrow] (waitchange) -- node[above] {0} ++(\xdist,0) -- ++(0,2*\ydist) -- (holdchange);
+
+    % \state[below=of waitchange]{clearchange}{Change20 $\leftarrow$ 00 \\ Change10 $\leftarrow$ 00 \\ Change5 $\leftarrow$ 00};
+
+    % \draw[arrow] (waitchange) -- node[right] {1} (clearchange);
+
+    % \draw[arrow] (clearchange) -- ++(2*\xdist,0) -- ++(0,7*\ydist) -- (idle);
+
+    \node[right=pi*\xdist of incoffee,font=\LARGE\bfseries,align=center,draw,thick,inner sep=15pt] (chartlabel) {ASM Chart \\[.2em] Lab 9 --- \textit{Vending Machine} \\[.2em] \today};
+\end{tikzpicture}
+\end{document}

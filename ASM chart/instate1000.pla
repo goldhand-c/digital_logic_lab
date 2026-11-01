@@ -1,0 +1,12 @@
+.i 3
+.o 4
+.ilb balance20 balance10 balance5
+.ob out31000 out21000 out11000 out01000
+.p 4
+
+1-- 1001
+01- 1010
+001 1011
+000 1100
+
+.e

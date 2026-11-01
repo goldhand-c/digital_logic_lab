@@ -1,0 +1,11 @@
+.i 2
+.o 4
+.ilb rst pchange
+.ob out31100 out21100 out11100 out01100
+.p 3
+
+1- 0000
+00 1100
+01 1101
+
+.e

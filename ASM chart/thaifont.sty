@@ -1,0 +1,88 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{thaifont}[2026/07/26]
+
+%% ---- LaTeX syntax utility package ---- %%
+\RequirePackage{etoolbox}
+
+%% ---- Set up fonts and encoding ---- %%
+\RequirePackage{fontspec, polyglossia}
+
+\setmainlanguage{english}
+\setotherlanguage{thai}
+
+\RequirePackage{xunicode}
+\RequirePackage{xltxtra}
+
+% Enable line breaks for Thai text
+\XeTeXlinebreaklocale "th"
+\XeTeXlinebreakskip = 0pt plus 2pt minus 1pt
+
+% ---------------------------------------------------
+%% Set up Thai fonts
+\newfontfamily{\thaifont}{Laksaman.otf}[%
+    ItalicFont={Laksaman-Italic.otf},%
+    BoldFont={Laksaman-Bold.otf},%
+    BoldItalicFont={Laksaman-BoldItalic.otf},%
+    Script=Thai,%
+    Scale=MatchLowercase,%
+    WordSpace=1.25,%
+    Mapping=tex-text,%
+]
+
+%% Set environment for Thai fonts
+\newenvironment{thailang}{\thaifont}{}
+
+\RequirePackage[Latin,Thai]{ucharclasses} % switch font
+
+%% When using Thai characters use thailang environment
+\setTransitionTo{Thai}{\begin{thailang}}
+        \setTransitionFrom{Thai}{\end{thailang}}
+%% \uccoff text \uccon to temporarily override this behavior
+% ---------------------------------------------------
+
+% ---------------------------------------------------
+%% Set up Thai fonts
+% \setmainfont{Laksaman.otf}[%
+%     ItalicFont={Laksaman-Italic.otf},%
+%     BoldFont={Laksaman-Bold.otf},%
+%     BoldItalicFont={Laksaman-BoldItalic.otf},%
+%     Script=Thai,%
+%     Scale=MatchLowercase,%
+%     WordSpace=1.25,%
+%     Mapping=tex-text,%
+% ]
+% ---------------------------------------------------
+
+%% ---- Load line spacing package ---- %%
+\RequirePackage{setspace}
+\setstretch{1.25}
+\setlength{\parskip}{12pt plus 3pt minus 2pt}
+\spaceskip=\fontdimen2\font plus 0.75em minus 0pt
+
+% Introducing hair space 
+\newrobustcmd{\hrsp}{\ifmmode\mskip1mu\else\kern0.0625em\fi}
+
+%% ---- Set up hyperlinks and colors ---- %%
+\RequirePackage{xcolor}
+\RequirePackage[unicode,pdfusetitle]{hyperref}
+\hypersetup{%
+    colorlinks,%
+    linkcolor={red!50!black},%
+    citecolor={blue!50!black},%
+    urlcolor={blue!80!black},%
+}
+
+\RequirePackage{mathtools}
+
+\RequirePackage{xcolor}
+
+\newfontfamily{\chinesefont}{KaiTi.ttf}[Script=CJK,Scale=MatchLowercase]
+
+\RequirePackage{newunicodechar}
+\newunicodechar{「}{{\chinesefont 「}}
+\newunicodechar{」}{{\chinesefont 」}}
+
+\endinput
+
+Source:
+https://www.overleaf.com/latex/examples/using-thai-font-in-xelatex-without-uploading-fonts-in-overleaf-kaaraichngaanphaasaaaithyain-xelatex-odyaimtngapohldfnt/hjttqqzzhhgq
