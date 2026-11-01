@@ -203,7 +203,8 @@
     \noteright{holdafterchange20}{1100};
 
     \draw[arrow] (change20) -- node[above] {1} (ichange20);
-    \draw[arrow] (ichange20) |- (holdafterchange20.east) (holdafterchange20.west) -| (change20);
+    \draw[arrow] (ichange20) |- (holdafterchange20);
+    \draw[arrow] (holdafterchange20) -| (change20);
 
     \decis[below right=of change20,yshift=-0.5*\ydist]{change10}{Balance $\geq$ 10};
 
@@ -219,7 +220,8 @@
     \noteright{holdafterchange10}{1101};
 
     \draw[arrow] (change10) -- node[above] {1} (ichange10);
-    \draw[arrow] (ichange10) |- (holdafterchange10.east) (holdafterchange10.west) -| (change10);
+    \draw[arrow] (ichange10) |- (holdafterchange10);
+    \draw[arrow] (holdafterchange10) -| (change10);
 
     \decis[below right=of change10,yshift=-0.5*\ydist]{change5}{Balance $\geq$ 5};
 
@@ -235,7 +237,8 @@
     \noteright{holdafterchange5}{1110};
 
     \draw[arrow] (change5) -- node[above] {1} (ichange5);
-    \draw[arrow] (ichange5) |- (holdafterchange5.east) (holdafterchange5.west) -| (change5);
+    \draw[arrow] (ichange5) |- (holdafterchange5);
+    \draw[arrow] (holdafterchange5) -| (change5);
 
     \draw[arrow] (change5) -- node[right] {0} ++(0, -\ydist) -- ++(2*\xdist, 0) -- ++(0, 5.25*\ydist) -- (idle);
 
@@ -259,6 +262,6 @@
 
     % \draw[arrow] (clearchange) -- ++(2*\xdist,0) -- ++(0,7*\ydist) -- (idle);
 
-    \node[right=pi*\xdist of incoffee,font=\LARGE\bfseries,align=center,draw,thick,inner sep=15pt] (chartlabel) {ASM Chart \\[.2em] Lab 9 --- \textit{Vending Machine} \\[.2em] \today};
+    \node[right=e*\xdist of incoffee,font=\LARGE\bfseries,align=center,draw,thick,inner sep=15pt] (chartlabel) {ASM Chart \\[.2em] Lab 9 --- \textit{Vending Machine} \\[.2em] \today};
 \end{tikzpicture}
 \end{document}
